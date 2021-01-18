@@ -536,7 +536,7 @@ const Home = () => {
                     <Widget3 style={{ backgroundColor: "#FFECD0" }}>
                       <CardContent>
                         <h3>week's schedule</h3>
-                        <iframe src="https://calendar.google.com/calendar/embed?height=600&amp;wkst=1&amp;bgcolor=%23ffffff&amp;ctz=America%2FToronto&amp;src=MmFtOXV0Z2g4ZXIzN2NndThrb2hrdHB2MmdAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ&amp;color=%23F6BF26" styles={{border:"solid 1px #777", paddingTop:"10px"}} width="100%" height="400" frameborder="0" scrolling="no"></iframe>
+                        <iframe src="https://calendar.google.com/calendar/embed?height=600&amp;wkst=1&amp;bgcolor=%23ffffff&amp;ctz=America%2FToronto&amp;src=MmFtOXV0Z2g4ZXIzN2NndThrb2hrdHB2MmdAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ&amp;color=%23F6BF26" styles={{border:"solid 1px #777", paddingTop:"10px"}} width="100%" height="400" scrolling="no"></iframe>
                       </CardContent>
                     </Widget3>
                   </Grid>
