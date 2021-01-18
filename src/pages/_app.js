@@ -1,5 +1,7 @@
 import { createGlobalStyle } from 'styled-components'
-import "../fonts.css";
+import '../fonts.css'
+import { withAuthenticator, AmplifySignOut } from '@aws-amplify/ui-react'
+import Link from 'next/link'
 
 const GlobalStyle = createGlobalStyle`
 

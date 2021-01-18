@@ -7,6 +7,9 @@ import { StylesProvider, makeStyles  } from '@material-ui/core/styles';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import Editable from '../editable'
 import Link from 'next/link'
+import Amplify from 'aws-amplify';
+import config from '../aws-exports';
+Amplify.configure(config);
 
 
 
@@ -378,8 +381,8 @@ const Home = () => {
         </span>
         <h1>lifemapp</h1>
         <span>
-        <Link href="/">
-          <Next>&#8594;</Next>
+        <Link href="/profile">
+          <Next>Sign in &#8594;</Next>
         </Link>
         </span>
       </Header>
