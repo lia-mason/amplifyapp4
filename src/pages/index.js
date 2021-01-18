@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Head from 'next/head'
 import styles from '../styles/Home.module.css'
 import styled from "styled-components"
@@ -10,8 +10,10 @@ import Link from 'next/link'
 import Amplify from 'aws-amplify';
 import config from '../aws-exports';
 Amplify.configure(config);
+import { listTodos } from '../graphql/queries';
+import { createTodo as createTodoMutation, deleteTodo as deleteTodoMutation } from '../graphql/mutations';
 
-
+const initialFormState = { name: '', description: '' }
 
 const useStyles = makeStyles((theme) => ({
   todoList: {
@@ -245,79 +247,104 @@ const InputField = styled(TextField)`
 
 
 
-function Todo({ todo, index, completeTodo, removeTodo }) {
-  return (
-      <div
-          className="todo"
-          style={{ textDecoration: todo.isCompleted ? "line-through" : "" }}
-      >
-        {todo.text} 
+// function Todo({ todo, index, completeTodo, removeTodo }) {
+//   return (
+//       <div
+//           className="todo"
+//           style={{ textDecoration: todo.isCompleted ? "line-through" : "" }}
+//       >
+//         {todo.text} 
        
-        <div style={{marginTop:'5px',marginBottom:'5px'}}>
-          <button onClick={() => completeTodo(index)}>Done</button><button style={{color:'8673FF'}} onClick={() => removeTodo(index)}>x</button>
-        </div>
-      </div>
-  );
-}
+//         <div style={{marginTop:'5px',marginBottom:'5px'}}>
+//           <button onClick={() => completeTodo(index)}>Done</button><button style={{color:'8673FF'}} onClick={() => removeTodo(index)}>x</button>
+//         </div>
+//       </div>
+//   );
+// }
 
-function TodoForm({ addTodo }) {
-  const [value, setValue] = React.useState("");
+// function TodoForm({ addTodo }) {
+//   const [value, setValue] = React.useState("");
 
-  const handleSubmit = e => {
-    e.preventDefault();
-    if (!value) return;
-    addTodo(value);
-    setValue("");
-  };
+//   const handleSubmit = e => {
+//     e.preventDefault();
+//     if (!value) return;
+//     addTodo(value);
+//     setValue("");
+//   };
 
-  return (
-      <form onSubmit={handleSubmit}>
-        <input
-            type="text"
-            className="input"
-            value={value}
-            onChange={e => setValue(e.target.value)}
-            style={{marginTop:'20px'}}
-        />
-      </form>
-  );
-}
+//   return (
+//       <form onSubmit={handleSubmit}>
+//         <input
+//             type="text"
+//             className="input"
+//             value={value}
+//             onChange={e => setValue(e.target.value)}
+//             style={{marginTop:'20px'}}
+//         />
+//       </form>
+//   );
+// }
 
 
 const Home = () => {
+
+  const [todos, setTodos] = useState([]);
+  const [formData, setFormData] = useState(initialFormState);
+
+  useEffect(() => {
+    fetchTodos();
+  }, []);
+
+  async function fetchTodos() {
+    const apiData = await Amplify.API.graphql({ query: listTodos });
+    setTodos(apiData.data.listTodos.items);
+  }
+
+  async function createTodo() {
+    if (!formData.name) return;
+    await Amplify.API.graphql({ query: createTodoMutation, variables: { input: formData } });
+    setTodos([ ...todos, formData ]);
+    setFormData(initialFormState);
+  }
+
+  async function deleteTodo({ id }) {
+    const newTodosArray = todos.filter(todo => todo.id !== id);
+    setTodos(newTodosArray);
+    await Amplify.API.graphql({ query: deleteTodoMutation, variables: { input: { id } }});
+  }
 
   const classes = useStyles();
   
   const [task, setTask] = useState("");
 
   
-  const [todos, setTodos] = React.useState([
-    {
-      text: "Drink Water :)",
-      isCompleted: false
-    },
-    {
-      text: "Meet friend for lunch",
-      isCompleted: false
-    }
-  ]);
+  // const [todos, setTodos] = React.useState([
+  //   {
+  //     text: "Drink Water :)",
+  //     isCompleted: false
+  //   },
+  //   {
+  //     text: "Meet friend for lunch",
+  //     isCompleted: false
+  //   }
+  // ]);
   
-  const addTodo = text => {
-    const newTodos = [...todos, { text }];
-    setTodos(newTodos);
-  };
+  // const addTodo = text => {
+  //   const newTodos = [...todos, { text }];
+  //   setTodos(newTodos);
+  // };
 
-  const completeTodo = index => {
-    const newTodos = [...todos];
-    newTodos[index].isCompleted = true;
-    setTodos(newTodos);
-  };
+  // const completeTodo = index => {
+  //   const newTodos = [...todos];
+  //   newTodos[index].isCompleted = true;
+  //   setTodos(newTodos);
+  // };
 
-  const removeTodo = index => {
-    const newTodos = [...todos];
-    newTodos.splice(index, 1);
-    setTodos(newTodos);
-  };
+  // const removeTodo = index => {
+  //   const newTodos = [...todos];
+  //   newTodos.splice(index, 1);
+  //   setTodos(newTodos);
+  // };
   
   const [value1, setValue1] = React.useState(30);
   const [value2, setValue2] = React.useState(10);
@@ -474,6 +501,24 @@ const Home = () => {
                 <CardContent>
                   <h3>today's tasks</h3>
                   <h4>DAILY TO-DO'S</h4>
+
+                    <input
+                      onChange={e => setFormData({ ...formData, 'name': e.target.value})}
+                      placeholder="task"
+                      value={formData.name}
+                    />
+                    <button onClick={createTodo}>add</button>
+                    <div style={{marginBottom: "10px"}}>
+                      {
+                        todos.map(todo => (
+                          <div key={todo.id || todo.name}>
+                            <p style={{ marginBottom:"5px", marginTop:"10px"}}>{todo.name}</p>
+                            <button onClick={() => deleteTodo(todo)}>Delete</button>
+                          </div>
+                        ))
+                      }
+                    </div>
+{/* 
                     <div className="app">
                     <div className={classes.todoList}>
                       {todos.map((todo, index) => (
@@ -488,7 +533,9 @@ const Home = () => {
                       ))}
                       <TodoForm addTodo={addTodo} />
                     </div>
-                  </div>
+                  </div> */}
+
+
                 </CardContent>
               </Widget2>
             </Grid>
@@ -539,7 +586,7 @@ const Home = () => {
                     <Widget3 style={{ backgroundColor: "#FFECD0" }}>
                       <CardContent>
                         <h3>week's schedule</h3>
-                        <iframe src="https://calendar.google.com/calendar/embed?height=600&amp;wkst=1&amp;bgcolor=%23ffffff&amp;ctz=America%2FToronto&amp;src=MmFtOXV0Z2g4ZXIzN2NndThrb2hrdHB2MmdAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ&amp;color=%23F6BF26" styles={{border:"solid 1px #777", paddingTop:"10px"}} width="100%" height="400" scrolling="no"></iframe>
+                        <iframe src="https://calendar.google.com/calendar/embed?height=600&amp;wkst=1&amp;bgcolor=%23ffffff&amp;ctz=America%2FToronto&amp;src=MmFtOXV0Z2g4ZXIzN2NndThrb2hrdHB2MmdAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ&amp;color=%23F6BF26" styles={{border:"solid 1px #777", paddingTop:"10px"}} width="100%" height="400" frameBorder="0" scrolling="no"></iframe>
                       </CardContent>
                     </Widget3>
                   </Grid>
