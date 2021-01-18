@@ -57,7 +57,8 @@ const Name = styled.h2`
 const Next = styled(Button)`
   && {
     margin-top: 15px;
-    font-size: 20px;
+    font-size: 18px;
+    font-family: 'Nunito', sans-serif;
     text-transform: none;
     position: absolute;
     right: 0;
@@ -308,8 +309,11 @@ const Home = () => {
   }
 
   async function deleteTodo({ id }) {
-    const newTodosArray = todos.filter(todo => todo.id !== id);
-    setTodos(newTodosArray);
+    const newTodos = [...todos];
+    newTodos.splice(id, 1);
+    setTodos(newTodos);
+    // const newTodosArray = todos.filter(todo => todo.id !== id);
+    // setTodos(newTodosArray);
     await Amplify.API.graphql({ query: deleteTodoMutation, variables: { input: { id } }});
   }
 
@@ -409,7 +413,7 @@ const Home = () => {
         <h1>lifemapp</h1>
         <span>
         <Link href="/profile">
-          <Next>Sign in &#8594;</Next>
+          <Next>sign in</Next>
         </Link>
         </span>
       </Header>
